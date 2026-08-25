@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from importlib.metadata import Distribution, distributions
+from importlib.metadata import Distribution, PackageMetadata, distributions
 
 
 DISALLOWED = ("AGPL", "GPL", "SSPL", "PROPRIETARY", "COMMERCIAL")
@@ -11,11 +11,18 @@ ACCEPTED = ("APACHE", "BSD", "ISC", "MIT", "MPL", "PSF")
 IGNORED = {"jovanipink-adk", "pip"}
 
 
+def metadata_value(metadata: PackageMetadata, key: str) -> str:
+    """Read one metadata field through the cross-version mapping contract."""
+
+    values = metadata.get_all(key, [])
+    return values[0] if values else ""
+
+
 def evidence(distribution: Distribution) -> str:
     metadata = distribution.metadata
     values = [
-        metadata.get("License-Expression") or "",
-        metadata.get("License") or "",
+        metadata_value(metadata, "License-Expression"),
+        metadata_value(metadata, "License"),
     ]
     values.extend(
         item for item in metadata.get_all("Classifier") or [] if item.startswith("License ::")
@@ -26,9 +33,9 @@ def evidence(distribution: Distribution) -> str:
 def main() -> int:
     reviewed = 0
     for distribution in sorted(
-        distributions(), key=lambda item: (item.metadata.get("Name") or "").lower()
+        distributions(), key=lambda item: metadata_value(item.metadata, "Name").lower()
     ):
-        name = distribution.metadata.get("Name") or "[unknown]"
+        name = metadata_value(distribution.metadata, "Name") or "[unknown]"
         if name.lower() in IGNORED:
             continue
         observed = evidence(distribution)
