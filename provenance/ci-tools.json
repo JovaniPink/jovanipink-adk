@@ -1,0 +1,36 @@
+{
+  "schema_version": "1",
+  "reviewed_at": "2026-08-25",
+  "tools": [
+    {
+      "name": "actions/checkout",
+      "revision": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "use": "Read-only source checkout with persisted credentials disabled"
+    },
+    {
+      "name": "actions/setup-python",
+      "revision": "5fda3b95a4ea91299a34e894583c3862153e4b97",
+      "use": "Python 3.11 runtime setup"
+    },
+    {
+      "name": "uv",
+      "version": "0.12.3",
+      "use": "Locked dependency synchronization"
+    },
+    {
+      "name": "pip-audit",
+      "version": "2.10.1",
+      "use": "Current Python vulnerability intelligence for the installed locked environment"
+    },
+    {
+      "name": "Hatchling",
+      "version": "1.27.0",
+      "use": "Package builds without a separately resolved build environment"
+    },
+    {
+      "name": "actions/upload-artifact",
+      "revision": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "use": "Short-lived validation and vulnerability evidence upload"
+    }
+  ]
+}

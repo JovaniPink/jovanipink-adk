@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "package": "google-adk",
+  "version": "2.7.1",
+  "reviewed_at": "2026-08-25",
+  "registry": "https://pypi.org/simple",
+  "wheel_sha256": "cd21e37c9846a80086fd880924aa5548e625ef85178122b40cda81ef5316129f",
+  "sdist_sha256": "0485bfba1a04960a3784eb67531491475be1a3f8acefcc5c880a906857ecb3e2",
+  "license_signal": "Apache-2.0",
+  "status": "accepted-with-conditions",
+  "conditions": [
+    "Runtime Agent Skills remain experimental.",
+    "The adapter exposes no skill script runner.",
+    "Any version change requires a new dependency and API review."
+  ]
+}

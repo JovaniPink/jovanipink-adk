@@ -1,0 +1,51 @@
+{
+  "schema_version": "1",
+  "reviewed_at": "2026-08-25",
+  "sources": [
+    {
+      "name": "Agent Skills specification",
+      "url": "https://agentskills.io/specification",
+      "use": "Skill naming, frontmatter, and progressive disclosure baseline"
+    },
+    {
+      "name": "Google ADK runtime skills",
+      "url": "https://adk-labs.github.io/adk-docs/skills/",
+      "use": "Experimental SkillToolset behavior and exposed runtime facilities"
+    },
+    {
+      "name": "Google ADK safety",
+      "url": "https://adk-labs.github.io/adk-docs/safety/",
+      "use": "Prompt injection, identity, tool, network, and output safety guidance"
+    },
+    {
+      "name": "Google ADK evaluation",
+      "url": "https://adk-labs.github.io/adk-docs/evaluate/",
+      "use": "Final-output and tool-trajectory evaluation guidance"
+    },
+    {
+      "name": "Google ADK tool confirmation",
+      "url": "https://adk-labs.github.io/adk-docs/tools-custom/confirmation/",
+      "use": "Experimental confirmation boundary and production limitations"
+    },
+    {
+      "name": "Google ADK package 2.7.1",
+      "url": "https://pypi.org/project/google-adk/2.7.1/",
+      "use": "Reviewed package version, Python compatibility, and artifact identity"
+    },
+    {
+      "name": "Google Agents CLI",
+      "url": "https://github.com/google/agents-cli/tree/048578a00b0b89fc8acdbfb3501895264640f355",
+      "use": "Optional developer-tool license and installation-behavior audit"
+    },
+    {
+      "name": "OWASP Agentic Security Initiative",
+      "url": "https://genai.owasp.org/initiatives/agentic-security-initiative/",
+      "use": "Agentic threat categories and risk framing"
+    },
+    {
+      "name": "NIST software agent identity and authorization concept paper",
+      "url": "https://www.nist.gov/news-events/news/2026/02/new-concept-paper-identity-and-authority-software-agents",
+      "use": "Identity and authorization boundary framing"
+    }
+  ]
+}

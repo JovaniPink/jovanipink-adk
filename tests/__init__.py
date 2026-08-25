@@ -1,0 +1,1 @@
+"""JovaniPink ADK tests."""

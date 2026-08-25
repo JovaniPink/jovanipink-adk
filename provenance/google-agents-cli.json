@@ -1,0 +1,19 @@
+{
+  "schema_version": "1",
+  "repository": "https://github.com/google/agents-cli",
+  "revision": "048578a00b0b89fc8acdbfb3501895264640f355",
+  "version": "1.4.1",
+  "reviewed_at": "2026-08-25",
+  "license": "Apache-2.0",
+  "skills_count": 7,
+  "skills_cli_pin": "skills@1.5.9",
+  "installed": false,
+  "vendored": false,
+  "status": "optional-with-conditions",
+  "conditions": [
+    "Preview setup with dry-run before execution.",
+    "Use workspace scope only.",
+    "Pin the exact source revision when reviewing skill content.",
+    "Authentication, infrastructure, deployment, and publication require separate authority."
+  ]
+}
