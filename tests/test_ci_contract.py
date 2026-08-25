@@ -16,6 +16,15 @@ class CiContractTests(unittest.TestCase):
         self.assertLess(prepare, audit)
         self.assertLess(prepare, report)
 
+    def test_bootstrap_and_static_checks_are_locked(self) -> None:
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        requirements = (ROOT / "requirements-bootstrap-linux.txt").read_text(encoding="utf-8")
+        self.assertIn("--require-hashes --only-binary=:all:", workflow)
+        self.assertIn("requirements-bootstrap-linux.txt", workflow)
+        self.assertIn("uv run --frozen mypy src tests scripts", workflow)
+        self.assertIn("uv run --frozen ruff check src tests scripts", workflow)
+        self.assertEqual(1, requirements.count("--hash=sha256:"))
+
 
 if __name__ == "__main__":
     unittest.main()

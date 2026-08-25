@@ -42,6 +42,8 @@ def main() -> int:
     run("scripts/dependency_review.py")
     run("scripts/license_scan.py")
     run("scripts/security_scan.py")
+    run("-m", "mypy", "src", "tests", "scripts")
+    run("-m", "ruff", "check", "src", "tests", "scripts")
     run("-m", "compileall", "-q", "src", "tests", "scripts")
     run("-m", "unittest", "discover", "-s", "tests", "-v")
     print("validation passed")

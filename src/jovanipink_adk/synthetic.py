@@ -7,10 +7,11 @@ import html
 import io
 import json
 import zipfile
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from .errors import AuthorizationError, BudgetExceededError, CancellationRequestedError
-from .models import BundleManifest, ManifestSkill, SkillFile
+from .models import BundleManifest, LifecycleState, ManifestSkill, SkillFile
 from .verification import canonical_artifact_sha256
 
 
@@ -24,7 +25,7 @@ Load `references/policy-facts.md` before answering a question about the fictiona
 DEFAULT_REFERENCE = b"The fictional policy response target is 18 synthetic minutes.\n"
 
 
-def _json_bytes(value: dict[str, object]) -> bytes:
+def _json_bytes(value: Mapping[str, object]) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
@@ -38,7 +39,7 @@ def _zip_info(path: str) -> zipfile.ZipInfo:
 
 def build_synthetic_bundle(
     *,
-    lifecycle_state: str = "evaluated",
+    lifecycle_state: LifecycleState = "evaluated",
     valid_until: str = "2099-01-01T00:00:00Z",
     adk_version: str = "2.7.1",
     skill_name: str = "fictional-support-policy",

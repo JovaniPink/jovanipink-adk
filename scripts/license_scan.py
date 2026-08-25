@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from importlib.metadata import distributions
+from importlib.metadata import Distribution, distributions
 
 
 DISALLOWED = ("AGPL", "GPL", "SSPL", "PROPRIETARY", "COMMERCIAL")
@@ -11,7 +11,7 @@ ACCEPTED = ("APACHE", "BSD", "ISC", "MIT", "MPL", "PSF")
 IGNORED = {"jovanipink-adk", "pip"}
 
 
-def evidence(distribution: object) -> str:
+def evidence(distribution: Distribution) -> str:
     metadata = distribution.metadata
     values = [
         metadata.get("License-Expression") or "",

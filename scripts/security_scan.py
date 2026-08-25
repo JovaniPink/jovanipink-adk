@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
 
@@ -16,6 +15,8 @@ EXCLUDED_PARTS = {
     "build",
     "dist",
     ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
     "validation-artifacts",
 }
 SECRET_PATTERNS = {

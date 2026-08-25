@@ -30,7 +30,7 @@ Google ADK tool confirmation is experimental. It may be useful in demonstrations
 
 The runtime dependency is exactly `google-adk==2.7.1`. The lockfile records artifact hashes for the full dependency graph. Any ADK or adapter version change invalidates existing release compatibility and requires review.
 
-The test suite needs no cloud credential or model API key. CI has read-only repository permissions and does not deploy or publish.
+The test suite needs no cloud credential or model API key. CI has read-only repository permissions and does not deploy or publish. It bootstraps uv from a versioned and SHA-256-locked Linux wheel, then runs strict typing and linting from the locked environment.
 
 ## Reporting a vulnerability
 

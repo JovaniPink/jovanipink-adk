@@ -23,6 +23,8 @@ Point-in-time local results are recorded separately under `evidence/`. They do n
 
 ```sh
 uv sync --frozen
+uv run --frozen mypy src tests scripts
+uv run --frozen ruff check src tests scripts
 uv run --frozen python -m unittest discover -s tests -v
 uv run --frozen python scripts/validate.py
 ```

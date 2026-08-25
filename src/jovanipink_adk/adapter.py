@@ -8,6 +8,8 @@ from typing import Any
 
 from google.adk.skills import models
 from google.adk.tools import skill_toolset
+from google.adk.tools.base_tool import BaseTool
+from google.adk.tools.base_toolset import BaseToolset
 
 from .errors import AuthorizationError, BundleVerificationError
 from .frontmatter import parse_skill
@@ -51,7 +53,7 @@ class AdkRuntimeAdapter:
         for manifest_skill in bundle.manifest.skills:
             skill_root = manifest_skill.path
             parsed = parse_skill(bundle.read_text(f"{skill_root}/SKILL.md"), manifest_skill.name)
-            references: dict[str, str] = {}
+            references: dict[str, str | bytes] = {}
             prefix = f"{skill_root}/references/"
             for path in bundle.files:
                 if path.startswith(prefix):
@@ -69,7 +71,9 @@ class AdkRuntimeAdapter:
                     resources=models.Resources(references=references, assets={}, scripts={}),
                 )
             )
-        tools = list(self._host_tools.values())
+        tools: list[Callable[..., Any] | BaseTool | BaseToolset] = [
+            tool for tool in self._host_tools.values()
+        ]
         filter_names = list(self.CORE_TOOL_NAMES) + list(self._host_tools)
         return skill_toolset.SkillToolset(
             skills=skills,

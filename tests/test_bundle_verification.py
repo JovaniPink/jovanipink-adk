@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import io
-import json
 import unittest
 import warnings
 import zipfile
 from dataclasses import replace
+from typing import cast
 
 from jovanipink_adk import (
     BundleVerificationError,
@@ -14,7 +14,7 @@ from jovanipink_adk import (
     verify_skill_bundle,
 )
 
-from support import rewrite_archive
+from tests.support import rewrite_archive
 
 
 class BundleVerificationTests(unittest.TestCase):
@@ -31,11 +31,17 @@ class BundleVerificationTests(unittest.TestCase):
         self.assertEqual(("fictional-support-policy",), verified.skill_names)
         self.assertIn("skills/fictional-support-policy/references/policy-facts.md", verified.files)
         with self.assertRaises(TypeError):
-            verified.files["new"] = b"no"
+            cast(dict[str, bytes], verified.files)["new"] = b"no"
 
     def test_wrong_hash_and_undeclared_files_fail_closed(self) -> None:
         def wrong_hash(value: dict[str, object]) -> None:
-            value["skills"][0]["files"][0]["sha256"] = "0" * 64
+            skills = value.get("skills")
+            if not isinstance(skills, list) or not skills or not isinstance(skills[0], dict):
+                raise TypeError("synthetic manifest skills are malformed")
+            files = skills[0].get("files")
+            if not isinstance(files, list) or not files or not isinstance(files[0], dict):
+                raise TypeError("synthetic manifest files are malformed")
+            files[0]["sha256"] = "0" * 64
 
         self.assert_rejected(
             rewrite_archive(self.bundle, transform_json={"manifest.json": wrong_hash}),

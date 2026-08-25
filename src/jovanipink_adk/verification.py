@@ -10,11 +10,13 @@ import stat
 import zipfile
 from datetime import datetime, timezone
 from pathlib import PurePosixPath
+from typing import cast
 
 from .errors import BundleVerificationError
 from .frontmatter import SKILL_NAME, parse_skill
 from .models import (
     BundleManifest,
+    LifecycleState,
     ManifestSkill,
     ReleaseReceipt,
     RuntimePolicy,
@@ -157,9 +159,10 @@ def parse_manifest(payload: bytes) -> BundleManifest:
 
 def parse_release(payload: bytes) -> ReleaseReceipt:
     value = _object(_json(payload, "release.json"), "release receipt", RELEASE_FIELDS)
-    state = _string(value["lifecycle_state"], "lifecycle state")
-    if state not in {"reviewed", "evaluated", "released", "revoked"}:
+    state_value = _string(value["lifecycle_state"], "lifecycle state")
+    if state_value not in {"reviewed", "evaluated", "released", "revoked"}:
         raise BundleVerificationError("invalid lifecycle state")
+    state = cast(LifecycleState, state_value)
     receipts = value["evaluation_receipts"]
     if not isinstance(receipts, list) or not all(isinstance(item, str) and item for item in receipts):
         raise BundleVerificationError("evaluation receipts must be a string array")
@@ -362,7 +365,7 @@ def verify_skill_bundle(
             raise BundleVerificationError("released bundle is missing provenance attestation evidence")
         if not release.approval_identity or not release.approved_at:
             raise BundleVerificationError("released bundle is missing approval evidence")
-    if release.lifecycle_state != "revoked" and (release.revoked_at or release.revocation_reason):
+    if release.revoked_at or release.revocation_reason:
         raise BundleVerificationError("non-revoked receipt contains revocation information")
     declared: dict[str, str] = {}
     for skill in manifest.skills:
