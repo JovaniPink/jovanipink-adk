@@ -36,7 +36,7 @@
     {
       "name": "Ruff",
       "version": "0.15.12",
-      "use": "Python static lint validation"
+      "use": "Python static lint and formatting validation"
     },
     {
       "name": "types-jsonschema",
@@ -45,8 +45,8 @@
     },
     {
       "name": "actions/upload-artifact",
-      "revision": "ea165f8d65b6e75b540449e92b4886f43607fa02",
-      "use": "Short-lived validation and vulnerability evidence upload"
+      "revision": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+      "use": "Short-lived validation and vulnerability evidence upload using the reviewed Node.js 24 action"
     }
   ]
 }
