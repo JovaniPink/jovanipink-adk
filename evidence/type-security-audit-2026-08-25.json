@@ -2,13 +2,13 @@
   "schema_version": "1",
   "status": "pass",
   "security_disposition": "APPROVE WITH CONDITIONS",
-  "source_revision": "30ea166817c827411deeb592ead7076f91ce7bc8",
+  "source_revision": "288f6e771ad8ec4d7fb1a5d8a830d376898159b5",
   "reviewed_on": "2026-08-25",
-  "python_source_files_typed": 19,
-  "unit_tests_passed": 21,
+  "python_source_files_typed": 21,
+  "unit_tests_passed": 24,
   "locked_packages_reviewed": 89,
   "installed_dependency_licenses_reviewed": 86,
-  "publishable_files_scanned": 46,
+  "publishable_files_scanned": 48,
   "vulnerability_audit": {
     "tool": "pip-audit 2.10.1",
     "result": "No known vulnerabilities found",
@@ -17,13 +17,13 @@
   "artifacts": [
     {
       "path": "dist/jovanipink_adk-0.1.0-py3-none-any.whl",
-      "sha256": "51a11c52e70f0eade8d2952be16c480cd4fc6eb94afbc39da3a94975c2a95a0d",
+      "sha256": "8d2863a93ffebb89f2c61d9595c97a4eaedef27d07d6643880277e177652a141",
       "files_scanned": 11
     },
     {
       "path": "dist/jovanipink_adk-0.1.0.tar.gz",
-      "sha256": "cd3b612b7e4c5df055c0c30a1d80c622593591a3057051bac6ea2c2c719ca04a",
-      "files_scanned": 47
+      "sha256": "66e340e34259cd543df6b3113e24c0b30383f86ab46c3223030b1789e9ee17e7",
+      "files_scanned": 12
     },
     {
       "path": "requirements-bootstrap-linux.txt",
@@ -40,5 +40,5 @@
     "Runtime Agent Skills and ADK tool confirmation remain experimental and version-specific.",
     "A future production release still requires durable approval, attestation, revocation, identity, replay, and product-owner evidence."
   ],
-  "hosted_regression": "Python 3.11 rejected metadata.get during strict typing. The exact source uses the PackageMetadata get_all contract and passes the reproduced Python 3.11 suite."
+  "hosted_regression": "Python 3.11 rejected metadata.get during strict typing. The exact source uses the PackageMetadata get_all contract and passes the reproduced Python 3.11 suite. The source distribution now has an exact 12-file allowlist, so audit evidence cannot make its own artifact hash stale."
 }
