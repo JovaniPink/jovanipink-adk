@@ -2,13 +2,13 @@
   "schema_version": "1",
   "status": "pass",
   "security_disposition": "APPROVE WITH CONDITIONS",
-  "source_revision": "e46c9b520b6ad4e9168bb8936025c1f9e418ec43",
+  "source_revision": "30ea166817c827411deeb592ead7076f91ce7bc8",
   "reviewed_on": "2026-08-25",
   "python_source_files_typed": 19,
-  "unit_tests_passed": 20,
+  "unit_tests_passed": 21,
   "locked_packages_reviewed": 89,
   "installed_dependency_licenses_reviewed": 86,
-  "publishable_files_scanned": 45,
+  "publishable_files_scanned": 46,
   "vulnerability_audit": {
     "tool": "pip-audit 2.10.1",
     "result": "No known vulnerabilities found",
@@ -22,8 +22,8 @@
     },
     {
       "path": "dist/jovanipink_adk-0.1.0.tar.gz",
-      "sha256": "e72fb532a755396155e84985d8f036db05f5f6549ce55d30002f3f768e4922ff",
-      "files_scanned": 46
+      "sha256": "cd3b612b7e4c5df055c0c30a1d80c622593591a3057051bac6ea2c2c719ca04a",
+      "files_scanned": 47
     },
     {
       "path": "requirements-bootstrap-linux.txt",
@@ -39,5 +39,6 @@
     "The synthetic reference agent remains unsuitable for production.",
     "Runtime Agent Skills and ADK tool confirmation remain experimental and version-specific.",
     "A future production release still requires durable approval, attestation, revocation, identity, replay, and product-owner evidence."
-  ]
+  ],
+  "hosted_regression": "Python 3.11 rejected metadata.get during strict typing. The exact source uses the PackageMetadata get_all contract and passes the reproduced Python 3.11 suite."
 }
