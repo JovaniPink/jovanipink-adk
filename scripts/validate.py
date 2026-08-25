@@ -19,9 +19,11 @@ def run(*arguments: str) -> None:
 
 
 def validate_json_files() -> None:
-    paths = sorted((ROOT / "schemas").glob("*.json")) + sorted(
-        (ROOT / "provenance").glob("*.json")
-    ) + sorted((ROOT / "evidence").glob("*.json"))
+    paths = (
+        sorted((ROOT / "schemas").glob("*.json"))
+        + sorted((ROOT / "provenance").glob("*.json"))
+        + sorted((ROOT / "evidence").glob("*.json"))
+    )
     if not paths:
         raise SystemExit("schema and provenance records are required")
     for path in paths:
@@ -33,7 +35,9 @@ def validate_local_links() -> None:
         for target in LOCAL_LINK.findall(path.read_text(encoding="utf-8")):
             resolved = (path.parent / target).resolve()
             if not resolved.is_relative_to(ROOT) or not resolved.exists():
-                raise SystemExit(f"broken local link in {path.relative_to(ROOT)}: {target}")
+                raise SystemExit(
+                    f"broken local link in {path.relative_to(ROOT)}: {target}"
+                )
 
 
 def main() -> int:

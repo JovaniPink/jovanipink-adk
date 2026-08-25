@@ -6,8 +6,10 @@ from __future__ import annotations
 import re
 import sys
 import tarfile
+import tomllib
 import zipfile
 from pathlib import Path, PurePosixPath
+from typing import cast
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,7 +35,12 @@ def local_terms() -> tuple[str, ...]:
 
 def safe_path(name: str) -> bool:
     path = PurePosixPath(name)
-    return bool(name) and not name.startswith("/") and ".." not in path.parts and "\\" not in name
+    return (
+        bool(name)
+        and not name.startswith("/")
+        and ".." not in path.parts
+        and "\\" not in name
+    )
 
 
 def zip_entries(path: Path) -> list[tuple[str, bytes, int]]:
@@ -60,6 +67,66 @@ def tar_entries(path: Path) -> list[tuple[str, bytes, int]]:
     return entries
 
 
+def project_identity() -> tuple[str, str]:
+    config = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    raw_project = config.get("project")
+    if not isinstance(raw_project, dict):
+        raise SystemExit("pyproject.toml has no project table")
+    project = cast(dict[str, object], raw_project)
+    name = project.get("name")
+    version = project.get("version")
+    if not isinstance(name, str) or not isinstance(version, str):
+        raise SystemExit("pyproject.toml project name and version must be strings")
+    return name.replace("-", "_"), version
+
+
+def expected_members(path: Path) -> set[str]:
+    package_name, version = project_identity()
+    source_root = ROOT / "src" / package_name
+    source_files = {
+        item.relative_to(ROOT).as_posix()
+        for item in source_root.rglob("*.py")
+        if item.is_file()
+    }
+    if not source_files:
+        raise SystemExit(f"package source is missing: {source_root}")
+
+    if path.suffix == ".whl":
+        distribution = f"{package_name}-{version}.dist-info"
+        return {
+            *(item.removeprefix("src/") for item in source_files),
+            f"{distribution}/METADATA",
+            f"{distribution}/WHEEL",
+            f"{distribution}/licenses/LICENSE",
+            f"{distribution}/RECORD",
+        }
+    if path.name.endswith(".tar.gz"):
+        root = f"{package_name}-{version}"
+        return {
+            *(f"{root}/{item}" for item in source_files),
+            f"{root}/.gitignore",
+            f"{root}/LICENSE",
+            f"{root}/README.md",
+            f"{root}/pyproject.toml",
+            f"{root}/PKG-INFO",
+        }
+    raise SystemExit(f"unsupported artifact: {path}")
+
+
+def validate_member_contract(path: Path, names: set[str]) -> None:
+    expected = expected_members(path)
+    unexpected = sorted(names - expected)
+    missing = sorted(expected - names)
+    if unexpected:
+        raise SystemExit(
+            f"artifact contains undeclared package members: {', '.join(unexpected)}"
+        )
+    if missing:
+        raise SystemExit(
+            f"artifact is missing required package members: {', '.join(missing)}"
+        )
+
+
 def scan(path: Path) -> int:
     if path.suffix == ".whl":
         entries = zip_entries(path)
@@ -70,6 +137,7 @@ def scan(path: Path) -> int:
     names = [name for name, _, _ in entries]
     if len(names) != len(set(names)):
         raise SystemExit(f"artifact contains duplicate paths: {path}")
+    validate_member_contract(path, set(names))
     terms = local_terms()
     for name, payload, mode in entries:
         if not safe_path(name):

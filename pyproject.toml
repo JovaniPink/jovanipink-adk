@@ -17,6 +17,14 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/jovanipink_adk"]
 
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src/jovanipink_adk",
+    "/LICENSE",
+    "/README.md",
+    "/pyproject.toml",
+]
+
 [tool.uv]
 package = true
 

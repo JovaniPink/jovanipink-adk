@@ -34,10 +34,13 @@ def main() -> int:
         "adapter_version": importlib.metadata.version("jovanipink-adk"),
         "uv_lock_sha256": sha256(ROOT / "uv.lock"),
         "provenance_sha256": {
-            path.name: sha256(path) for path in sorted((ROOT / "provenance").glob("*.json"))
+            path.name: sha256(path)
+            for path in sorted((ROOT / "provenance").glob("*.json"))
         },
     }
-    destination.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    destination.write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     return 0
 
 

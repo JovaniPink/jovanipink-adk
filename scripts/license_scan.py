@@ -25,7 +25,9 @@ def evidence(distribution: Distribution) -> str:
         metadata_value(metadata, "License"),
     ]
     values.extend(
-        item for item in metadata.get_all("Classifier") or [] if item.startswith("License ::")
+        item
+        for item in metadata.get_all("Classifier") or []
+        if item.startswith("License ::")
     )
     return " | ".join(value for value in values if value).upper()
 
@@ -42,9 +44,13 @@ def main() -> int:
         if not observed:
             raise SystemExit(f"dependency {name} has no installed license evidence")
         if any(term in observed for term in DISALLOWED):
-            raise SystemExit(f"dependency {name} has a disallowed license signal: {observed}")
+            raise SystemExit(
+                f"dependency {name} has a disallowed license signal: {observed}"
+            )
         if not any(term in observed for term in ACCEPTED):
-            raise SystemExit(f"dependency {name} has an unreviewed license signal: {observed}")
+            raise SystemExit(
+                f"dependency {name} has an unreviewed license signal: {observed}"
+            )
         reviewed += 1
     print(f"license scan passed for {reviewed} installed dependencies")
     return 0

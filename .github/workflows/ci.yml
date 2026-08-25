@@ -33,6 +33,7 @@ jobs:
         run: |
           uv run --frozen mypy src tests scripts
           uv run --frozen ruff check src tests scripts
+          uv run --frozen ruff format --check src tests scripts
       - name: Validate
         run: uv run --frozen python scripts/validate.py
       - name: Build package artifacts from the locked environment

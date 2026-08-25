@@ -96,9 +96,15 @@ def build_synthetic_bundle(
         "adk_version": adk_version,
         "evaluation_receipts": ["evaluation:synthetic-reference-v1"],
         "provenance_attestation_reference": "attestation:synthetic-reference-v1",
-        "provenance_attestation_sha256": hashlib.sha256(b"synthetic attestation").hexdigest(),
-        "approval_identity": "synthetic-approver" if lifecycle_state == "released" else None,
-        "approved_at": "2026-08-25T00:00:00Z" if lifecycle_state == "released" else None,
+        "provenance_attestation_sha256": hashlib.sha256(
+            b"synthetic attestation"
+        ).hexdigest(),
+        "approval_identity": "synthetic-approver"
+        if lifecycle_state == "released"
+        else None,
+        "approved_at": "2026-08-25T00:00:00Z"
+        if lifecycle_state == "released"
+        else None,
         "issued_at": "2026-08-25T00:00:00Z",
         "valid_until": valid_until,
         "revoked_at": "2026-08-25T00:00:00Z" if revoked else None,
@@ -151,15 +157,21 @@ class SyntheticSupportAgent:
     def cancel(self, request_id: str) -> None:
         self._canceled.add(request_id)
 
-    def _lookup(self, principal: SyntheticPrincipal, record_id: str) -> tuple[tuple[str, str], ...]:
+    def _lookup(
+        self, principal: SyntheticPrincipal, record_id: str
+    ) -> tuple[tuple[str, str], ...]:
         if (
             principal.tenant_id != "tenant-a"
             or principal.user_id != "user-a"
             or principal.agent_id != "synthetic-support-agent"
         ):
-            raise AuthorizationError("synthetic record is not authorized for this principal")
+            raise AuthorizationError(
+                "synthetic record is not authorized for this principal"
+            )
         if record_id != "case-100":
-            raise AuthorizationError("synthetic record is outside the deterministic allowlist")
+            raise AuthorizationError(
+                "synthetic record is outside the deterministic allowlist"
+            )
         return (("record_id", "case-100"), ("status", "fictional-open"))
 
     def respond(
@@ -196,7 +208,9 @@ class SyntheticSupportAgent:
         ] = result
         return result
 
-    def read_session(self, principal: SyntheticPrincipal, session_id: str) -> SyntheticResult:
+    def read_session(
+        self, principal: SyntheticPrincipal, session_id: str
+    ) -> SyntheticResult:
         key = (principal.tenant_id, principal.user_id, principal.agent_id, session_id)
         if key in self._sessions:
             return self._sessions[key]

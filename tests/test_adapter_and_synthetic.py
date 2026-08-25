@@ -31,16 +31,14 @@ class AdapterAndSyntheticTests(unittest.TestCase):
         toolset = adapter.to_skill_toolset(self.verified)
         self.assertIsInstance(toolset, SkillToolset)
         self.assertEqual((), adapter.registered_host_tool_names)
-        observed = tuple(
-            sorted(tool.name for tool in asyncio.run(toolset.get_tools()))
-        )
-        self.assertEqual(
-            ("list_skills", "load_skill", "load_skill_resource"), observed
-        )
+        observed = tuple(sorted(tool.name for tool in asyncio.run(toolset.get_tools())))
+        self.assertEqual(("list_skills", "load_skill", "load_skill_resource"), observed)
         self.assertNotIn("run_skill_script", observed)
 
     def test_reference_only_fact_is_progressively_available(self) -> None:
-        instructions = self.verified.read_text("skills/fictional-support-policy/SKILL.md")
+        instructions = self.verified.read_text(
+            "skills/fictional-support-policy/SKILL.md"
+        )
         reference = self.verified.read_text(
             "skills/fictional-support-policy/references/policy-facts.md"
         )
@@ -67,9 +65,13 @@ class AdapterAndSyntheticTests(unittest.TestCase):
         adapter.to_skill_toolset(verified)
         self.assertEqual((), adapter.registered_host_tool_names)
         with self.assertRaisesRegex(AuthorizationError, "not registered"):
-            adapter.invoke_host_tool("production-delete-all", {}, principal="synthetic-user")
+            adapter.invoke_host_tool(
+                "production-delete-all", {}, principal="synthetic-user"
+            )
 
-    def test_user_reference_tool_and_retrieval_injections_cannot_expand_tools(self) -> None:
+    def test_user_reference_tool_and_retrieval_injections_cannot_expand_tools(
+        self,
+    ) -> None:
         agent = SyntheticSupportAgent()
         principal = SyntheticPrincipal(user_id="user-a", tenant_id="tenant-a")
         attacks = (
@@ -115,7 +117,9 @@ class AdapterAndSyntheticTests(unittest.TestCase):
             retrieved_content="synthetic",
             request_id="escape-1",
         )
-        self.assertIn(html.escape("<img src=x onerror=alert(1)>"), result.rendered_output)
+        self.assertIn(
+            html.escape("<img src=x onerror=alert(1)>"), result.rendered_output
+        )
         self.assertNotIn("<img", result.rendered_output)
         with self.assertRaisesRegex(AuthorizationError, "session"):
             agent.read_session(second, "shared-name")

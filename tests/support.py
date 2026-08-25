@@ -16,9 +16,10 @@ def rewrite_archive(
     mutate = mutate or {}
     transform_json = transform_json or {}
     output = io.BytesIO()
-    with zipfile.ZipFile(io.BytesIO(payload), "r") as source, zipfile.ZipFile(
-        output, "w", compression=zipfile.ZIP_DEFLATED
-    ) as target:
+    with (
+        zipfile.ZipFile(io.BytesIO(payload), "r") as source,
+        zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as target,
+    ):
         for item in source.infolist():
             content = source.read(item)
             if item.filename in mutate:
@@ -26,7 +27,9 @@ def rewrite_archive(
             if item.filename in transform_json:
                 value = json.loads(content)
                 transform_json[item.filename](value)
-                content = json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+                content = json.dumps(
+                    value, sort_keys=True, separators=(",", ":")
+                ).encode("utf-8")
             target.writestr(item, content)
         for name, content in append or []:
             target.writestr(name, content)

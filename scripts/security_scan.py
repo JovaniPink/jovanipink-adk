@@ -93,7 +93,9 @@ def main() -> int:
                 break
 
     if violations:
-        raise SystemExit("security scan failed:\n" + "\n".join(f"- {item}" for item in violations))
+        raise SystemExit(
+            "security scan failed:\n" + "\n".join(f"- {item}" for item in violations)
+        )
     print(f"security scan passed for {len(iter_files())} publishable files")
     return 0
 

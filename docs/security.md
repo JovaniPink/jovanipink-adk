@@ -32,6 +32,8 @@ The runtime dependency is exactly `google-adk==2.7.1`. The lockfile records arti
 
 The test suite needs no cloud credential or model API key. CI has read-only repository permissions and does not deploy or publish. It bootstraps uv from a versioned and SHA-256-locked Linux wheel, then runs strict typing and linting from the locked environment.
 
+The source distribution contains only the package source, license, README, project metadata, generated package metadata, and the non-sensitive `.gitignore` that Hatchling uses to preserve VCS exclusion rules. Repository CI, evidence, provenance, tests, lockfiles, validation scripts, and other Git control files remain reviewable in Git but are not bundled into the distributable archive. The artifact scanner enforces this exact boundary.
+
 ## Reporting a vulnerability
 
 Follow [SECURITY.md](../SECURITY.md). Do not place secrets, private product details, or proof-of-concept customer data in a public issue.
