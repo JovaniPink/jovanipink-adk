@@ -63,15 +63,21 @@ def parse_skill(text: str, expected_name: str) -> ParsedSkill:
         if key in values:
             raise BundleVerificationError(f"duplicate skill frontmatter field: {key}")
         if key == "allowed-tools":
-            raise BundleVerificationError("allowed-tools is forbidden in runtime bundles")
+            raise BundleVerificationError(
+                "allowed-tools is forbidden in runtime bundles"
+            )
         if key == "metadata":
             if value.strip() not in {"", "{}"}:
-                raise BundleVerificationError("metadata must use simple nested string fields")
+                raise BundleVerificationError(
+                    "metadata must use simple nested string fields"
+                )
             values[key] = ""
             in_metadata = True
             continue
         if not value.strip() or value.strip() in {"|", ">"}:
-            raise BundleVerificationError(f"skill frontmatter field {key} must be a scalar")
+            raise BundleVerificationError(
+                f"skill frontmatter field {key} must be a scalar"
+            )
         values[key] = _unquote(value)
     name = values.get("name", "")
     description = values.get("description", "")
@@ -80,7 +86,9 @@ def parse_skill(text: str, expected_name: str) -> ParsedSkill:
     if name != expected_name:
         raise BundleVerificationError("skill name does not match its archive path")
     if not description or len(description) > 1024:
-        raise BundleVerificationError("skill description must contain 1 to 1024 characters")
+        raise BundleVerificationError(
+            "skill description must contain 1 to 1024 characters"
+        )
     if not instructions.strip():
         raise BundleVerificationError("skill instructions are empty")
     return ParsedSkill(

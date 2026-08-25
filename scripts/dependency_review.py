@@ -20,7 +20,9 @@ def main() -> int:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     dependencies = project["project"]["dependencies"]
     if dependencies != [f"google-adk=={EXPECTED_ADK}"]:
-        raise SystemExit("runtime dependencies must contain only the exact Google ADK pin")
+        raise SystemExit(
+            "runtime dependencies must contain only the exact Google ADK pin"
+        )
 
     lock = tomllib.loads((ROOT / "uv.lock").read_text(encoding="utf-8"))
     packages = lock.get("package", [])
@@ -33,7 +35,9 @@ def main() -> int:
         source = package.get("source", {})
         if name == project["project"]["name"]:
             if source != {"editable": "."}:
-                raise SystemExit("the local project must be the only editable dependency")
+                raise SystemExit(
+                    "the local project must be the only editable dependency"
+                )
             continue
         if source != {"registry": "https://pypi.org/simple"}:
             raise SystemExit(f"dependency {name} uses an unapproved source: {source}")

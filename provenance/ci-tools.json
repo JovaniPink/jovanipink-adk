@@ -15,7 +15,8 @@
     {
       "name": "uv",
       "version": "0.12.3",
-      "use": "Locked dependency synchronization"
+      "artifact_sha256": "1482d1462b1aecd18ee33627363fe1c63d6a194f12d40d37efc446d9e0d800a1",
+      "use": "Hash-locked Linux bootstrap and locked dependency synchronization"
     },
     {
       "name": "pip-audit",
@@ -28,9 +29,24 @@
       "use": "Package builds without a separately resolved build environment"
     },
     {
+      "name": "mypy",
+      "version": "1.20.2",
+      "use": "Strict static type validation"
+    },
+    {
+      "name": "Ruff",
+      "version": "0.15.12",
+      "use": "Python static lint and formatting validation"
+    },
+    {
+      "name": "types-jsonschema",
+      "version": "4.26.0.20260518",
+      "use": "Static type information for the JSON Schema test dependency"
+    },
+    {
       "name": "actions/upload-artifact",
-      "revision": "ea165f8d65b6e75b540449e92b4886f43607fa02",
-      "use": "Short-lived validation and vulnerability evidence upload"
+      "revision": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+      "use": "Short-lived validation and vulnerability evidence upload using the reviewed Node.js 24 action"
     }
   ]
 }

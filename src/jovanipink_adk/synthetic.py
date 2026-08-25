@@ -7,10 +7,11 @@ import html
 import io
 import json
 import zipfile
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from .errors import AuthorizationError, BudgetExceededError, CancellationRequestedError
-from .models import BundleManifest, ManifestSkill, SkillFile
+from .models import BundleManifest, LifecycleState, ManifestSkill, SkillFile
 from .verification import canonical_artifact_sha256
 
 
@@ -24,7 +25,7 @@ Load `references/policy-facts.md` before answering a question about the fictiona
 DEFAULT_REFERENCE = b"The fictional policy response target is 18 synthetic minutes.\n"
 
 
-def _json_bytes(value: dict[str, object]) -> bytes:
+def _json_bytes(value: Mapping[str, object]) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
@@ -38,7 +39,7 @@ def _zip_info(path: str) -> zipfile.ZipInfo:
 
 def build_synthetic_bundle(
     *,
-    lifecycle_state: str = "evaluated",
+    lifecycle_state: LifecycleState = "evaluated",
     valid_until: str = "2099-01-01T00:00:00Z",
     adk_version: str = "2.7.1",
     skill_name: str = "fictional-support-policy",
@@ -95,9 +96,15 @@ def build_synthetic_bundle(
         "adk_version": adk_version,
         "evaluation_receipts": ["evaluation:synthetic-reference-v1"],
         "provenance_attestation_reference": "attestation:synthetic-reference-v1",
-        "provenance_attestation_sha256": hashlib.sha256(b"synthetic attestation").hexdigest(),
-        "approval_identity": "synthetic-approver" if lifecycle_state == "released" else None,
-        "approved_at": "2026-08-25T00:00:00Z" if lifecycle_state == "released" else None,
+        "provenance_attestation_sha256": hashlib.sha256(
+            b"synthetic attestation"
+        ).hexdigest(),
+        "approval_identity": "synthetic-approver"
+        if lifecycle_state == "released"
+        else None,
+        "approved_at": "2026-08-25T00:00:00Z"
+        if lifecycle_state == "released"
+        else None,
         "issued_at": "2026-08-25T00:00:00Z",
         "valid_until": valid_until,
         "revoked_at": "2026-08-25T00:00:00Z" if revoked else None,
@@ -150,15 +157,21 @@ class SyntheticSupportAgent:
     def cancel(self, request_id: str) -> None:
         self._canceled.add(request_id)
 
-    def _lookup(self, principal: SyntheticPrincipal, record_id: str) -> tuple[tuple[str, str], ...]:
+    def _lookup(
+        self, principal: SyntheticPrincipal, record_id: str
+    ) -> tuple[tuple[str, str], ...]:
         if (
             principal.tenant_id != "tenant-a"
             or principal.user_id != "user-a"
             or principal.agent_id != "synthetic-support-agent"
         ):
-            raise AuthorizationError("synthetic record is not authorized for this principal")
+            raise AuthorizationError(
+                "synthetic record is not authorized for this principal"
+            )
         if record_id != "case-100":
-            raise AuthorizationError("synthetic record is outside the deterministic allowlist")
+            raise AuthorizationError(
+                "synthetic record is outside the deterministic allowlist"
+            )
         return (("record_id", "case-100"), ("status", "fictional-open"))
 
     def respond(
@@ -195,7 +208,9 @@ class SyntheticSupportAgent:
         ] = result
         return result
 
-    def read_session(self, principal: SyntheticPrincipal, session_id: str) -> SyntheticResult:
+    def read_session(
+        self, principal: SyntheticPrincipal, session_id: str
+    ) -> SyntheticResult:
         key = (principal.tenant_id, principal.user_id, principal.agent_id, session_id)
         if key in self._sessions:
             return self._sessions[key]

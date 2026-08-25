@@ -10,11 +10,13 @@ import stat
 import zipfile
 from datetime import datetime, timezone
 from pathlib import PurePosixPath
+from typing import cast
 
 from .errors import BundleVerificationError
 from .frontmatter import SKILL_NAME, parse_skill
 from .models import (
     BundleManifest,
+    LifecycleState,
     ManifestSkill,
     ReleaseReceipt,
     RuntimePolicy,
@@ -28,7 +30,15 @@ REVISION = re.compile(r"^[0-9a-f]{40}$")
 SEMVER = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 OPAQUE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 MANIFEST_FIELDS = frozenset(
-    {"schema_version", "bundle_id", "bundle_version", "source_revision", "created_at", "skills", "artifact_sha256"}
+    {
+        "schema_version",
+        "bundle_id",
+        "bundle_version",
+        "source_revision",
+        "created_at",
+        "skills",
+        "artifact_sha256",
+    }
 )
 SKILL_FIELDS = frozenset({"name", "path", "files"})
 FILE_FIELDS = frozenset({"path", "sha256"})
@@ -84,7 +94,9 @@ def _timestamp(value: object, label: str) -> str:
     try:
         parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
     except ValueError as error:
-        raise BundleVerificationError(f"{label} must be an ISO-8601 timestamp") from error
+        raise BundleVerificationError(
+            f"{label} must be an ISO-8601 timestamp"
+        ) from error
     if parsed.tzinfo is None:
         raise BundleVerificationError(f"{label} must include a timezone")
     return text
@@ -112,7 +124,9 @@ def parse_manifest(payload: bytes) -> BundleManifest:
         raise BundleVerificationError("bundle version must use SemVer")
     source_revision = _string(value["source_revision"], "source revision")
     if not REVISION.fullmatch(source_revision):
-        raise BundleVerificationError("source revision must be an immutable 40-character Git SHA")
+        raise BundleVerificationError(
+            "source revision must be an immutable 40-character Git SHA"
+        )
     created_at = _timestamp(value["created_at"], "manifest creation time")
     artifact_sha256 = _string(value["artifact_sha256"], "artifact SHA-256")
     if not SHA256.fullmatch(artifact_sha256):
@@ -131,7 +145,9 @@ def parse_manifest(payload: bytes) -> BundleManifest:
             raise BundleVerificationError("manifest skill path does not match its name")
         raw_files = skill["files"]
         if not isinstance(raw_files, list) or not raw_files:
-            raise BundleVerificationError("manifest skill files must be a non-empty array")
+            raise BundleVerificationError(
+                "manifest skill files must be a non-empty array"
+            )
         files: list[SkillFile] = []
         for raw_file in raw_files:
             file_value = _object(raw_file, f"manifest file for {name}", FILE_FIELDS)
@@ -157,11 +173,14 @@ def parse_manifest(payload: bytes) -> BundleManifest:
 
 def parse_release(payload: bytes) -> ReleaseReceipt:
     value = _object(_json(payload, "release.json"), "release receipt", RELEASE_FIELDS)
-    state = _string(value["lifecycle_state"], "lifecycle state")
-    if state not in {"reviewed", "evaluated", "released", "revoked"}:
+    state_value = _string(value["lifecycle_state"], "lifecycle state")
+    if state_value not in {"reviewed", "evaluated", "released", "revoked"}:
         raise BundleVerificationError("invalid lifecycle state")
+    state = cast(LifecycleState, state_value)
     receipts = value["evaluation_receipts"]
-    if not isinstance(receipts, list) or not all(isinstance(item, str) and item for item in receipts):
+    if not isinstance(receipts, list) or not all(
+        isinstance(item, str) and item for item in receipts
+    ):
         raise BundleVerificationError("evaluation receipts must be a string array")
     digest = _string(value["artifact_sha256"], "release artifact SHA-256")
     attestation_digest = _string(
@@ -175,23 +194,34 @@ def parse_release(payload: bytes) -> ReleaseReceipt:
         bundle_version=_string(value["bundle_version"], "release bundle version"),
         artifact_sha256=digest,
         lifecycle_state=state,
-        runtime_adapter_version=_string(value["runtime_adapter_version"], "runtime adapter version"),
+        runtime_adapter_version=_string(
+            value["runtime_adapter_version"], "runtime adapter version"
+        ),
         adk_version=_string(value["adk_version"], "ADK version"),
         evaluation_receipts=tuple(receipts),
         provenance_attestation_reference=_string(
-            value["provenance_attestation_reference"], "provenance attestation reference"
+            value["provenance_attestation_reference"],
+            "provenance attestation reference",
         ),
         provenance_attestation_sha256=attestation_digest,
-        approval_identity=_optional_string(value["approval_identity"], "approval identity"),
+        approval_identity=_optional_string(
+            value["approval_identity"], "approval identity"
+        ),
         approved_at=(
-            None if value["approved_at"] is None else _timestamp(value["approved_at"], "approval time")
+            None
+            if value["approved_at"] is None
+            else _timestamp(value["approved_at"], "approval time")
         ),
         issued_at=_timestamp(value["issued_at"], "receipt issue time"),
         valid_until=_timestamp(value["valid_until"], "receipt expiration time"),
         revoked_at=(
-            None if value["revoked_at"] is None else _timestamp(value["revoked_at"], "revocation time")
+            None
+            if value["revoked_at"] is None
+            else _timestamp(value["revoked_at"], "revocation time")
         ),
-        revocation_reason=_optional_string(value["revocation_reason"], "revocation reason"),
+        revocation_reason=_optional_string(
+            value["revocation_reason"], "revocation reason"
+        ),
     )
 
 
@@ -208,7 +238,9 @@ def canonical_artifact_sha256(manifest: BundleManifest, files: dict[str, bytes])
             {
                 "name": skill.name,
                 "path": skill.path,
-                "files": [{"path": item.path, "sha256": item.sha256} for item in skill.files],
+                "files": [
+                    {"path": item.path, "sha256": item.sha256} for item in skill.files
+                ],
             }
             for skill in manifest.skills
         ],
@@ -272,22 +304,31 @@ def _validate_archive_entries(
     for entry in entries:
         path_error = _path_error(entry.filename)
         if path_error:
-            raise BundleVerificationError(f"archive contains {path_error}: {entry.filename}")
+            raise BundleVerificationError(
+                f"archive contains {path_error}: {entry.filename}"
+            )
         mode = entry.external_attr >> 16
         if stat.S_ISLNK(mode):
-            raise BundleVerificationError(f"archive contains a symlink: {entry.filename}")
+            raise BundleVerificationError(
+                f"archive contains a symlink: {entry.filename}"
+            )
         if entry.flag_bits & 0x1:
             raise BundleVerificationError("encrypted archive entries are not accepted")
         if entry.file_size > policy.maximum_file_size:
             raise BundleVerificationError(f"file size exceeds policy: {entry.filename}")
         ratio = entry.file_size / max(entry.compress_size, 1)
         if ratio > policy.maximum_compression_ratio:
-            raise BundleVerificationError(f"compression ratio exceeds policy: {entry.filename}")
-        if entry.filename not in ALLOWED_TOP_LEVEL and not _allowed_skill_path(entry.filename):
+            raise BundleVerificationError(
+                f"compression ratio exceeds policy: {entry.filename}"
+            )
+        if entry.filename not in ALLOWED_TOP_LEVEL and not _allowed_skill_path(
+            entry.filename
+        ):
             raise BundleVerificationError(f"forbidden archive path: {entry.filename}")
         if entry.filename not in ALLOWED_TOP_LEVEL:
             if not any(
-                entry.filename.startswith(prefix) for prefix in policy.allowed_path_prefixes
+                entry.filename.startswith(prefix)
+                for prefix in policy.allowed_path_prefixes
             ):
                 raise BundleVerificationError(
                     f"archive path is outside the runtime policy: {entry.filename}"
@@ -323,17 +364,25 @@ def verify_skill_bundle(
             try:
                 content = archive.read(entry)
             except (RuntimeError, zipfile.BadZipFile) as error:
-                raise BundleVerificationError(f"cannot read archive entry: {entry.filename}") from error
+                raise BundleVerificationError(
+                    f"cannot read archive entry: {entry.filename}"
+                ) from error
             if len(content) != entry.file_size:
-                raise BundleVerificationError(f"archive size mismatch: {entry.filename}")
+                raise BundleVerificationError(
+                    f"archive size mismatch: {entry.filename}"
+                )
             files[entry.filename] = content
     if set(ALLOWED_TOP_LEVEL) - set(files):
-        raise BundleVerificationError("archive must contain manifest.json and release.json")
+        raise BundleVerificationError(
+            "archive must contain manifest.json and release.json"
+        )
     for path, content in files.items():
         try:
             text = content.decode("utf-8")
         except UnicodeDecodeError as error:
-            raise BundleVerificationError(f"archive entry is not valid UTF-8: {path}") from error
+            raise BundleVerificationError(
+                f"archive entry is not valid UTF-8: {path}"
+            ) from error
         if "\x00" in text:
             raise BundleVerificationError(f"archive entry contains a NUL byte: {path}")
     manifest = parse_manifest(files["manifest.json"])
@@ -342,14 +391,23 @@ def verify_skill_bundle(
         raise BundleVerificationError("unsupported release receipt schema version")
     if release.lifecycle_state == "revoked":
         raise BundleVerificationError("bundle release is revoked")
-    if release.bundle_id != manifest.bundle_id or release.bundle_version != manifest.bundle_version:
+    if (
+        release.bundle_id != manifest.bundle_id
+        or release.bundle_version != manifest.bundle_version
+    ):
         raise BundleVerificationError("release receipt does not match bundle identity")
     if release.artifact_sha256 != manifest.artifact_sha256:
-        raise BundleVerificationError("release receipt does not match artifact identity")
+        raise BundleVerificationError(
+            "release receipt does not match artifact identity"
+        )
     if release.adk_version != policy.expected_adk_version:
-        raise BundleVerificationError("release ADK version is incompatible with runtime policy")
+        raise BundleVerificationError(
+            "release ADK version is incompatible with runtime policy"
+        )
     if release.runtime_adapter_version != policy.expected_adapter_version:
-        raise BundleVerificationError("release adapter version is incompatible with runtime policy")
+        raise BundleVerificationError(
+            "release adapter version is incompatible with runtime policy"
+        )
     current = now or datetime.now(timezone.utc)
     if _parse_time(release.valid_until) <= current:
         raise BundleVerificationError("release receipt has expired")
@@ -357,22 +415,39 @@ def verify_skill_bundle(
         raise BundleVerificationError("production mode accepts only released bundles")
     if release.lifecycle_state == "released":
         if not release.evaluation_receipts:
-            raise BundleVerificationError("released bundle is missing evaluation evidence")
-        if not release.provenance_attestation_reference or not release.provenance_attestation_sha256:
-            raise BundleVerificationError("released bundle is missing provenance attestation evidence")
+            raise BundleVerificationError(
+                "released bundle is missing evaluation evidence"
+            )
+        if (
+            not release.provenance_attestation_reference
+            or not release.provenance_attestation_sha256
+        ):
+            raise BundleVerificationError(
+                "released bundle is missing provenance attestation evidence"
+            )
         if not release.approval_identity or not release.approved_at:
-            raise BundleVerificationError("released bundle is missing approval evidence")
-    if release.lifecycle_state != "revoked" and (release.revoked_at or release.revocation_reason):
-        raise BundleVerificationError("non-revoked receipt contains revocation information")
+            raise BundleVerificationError(
+                "released bundle is missing approval evidence"
+            )
+    if release.revoked_at or release.revocation_reason:
+        raise BundleVerificationError(
+            "non-revoked receipt contains revocation information"
+        )
     declared: dict[str, str] = {}
     for skill in manifest.skills:
         if skill.name not in policy.allowed_skill_names:
-            raise BundleVerificationError(f"skill is not allowed by runtime policy: {skill.name}")
+            raise BundleVerificationError(
+                f"skill is not allowed by runtime policy: {skill.name}"
+            )
         for item in skill.files:
             if item.path in declared:
-                raise BundleVerificationError(f"manifest declares a duplicate file: {item.path}")
+                raise BundleVerificationError(
+                    f"manifest declares a duplicate file: {item.path}"
+                )
             if not item.path.startswith(skill.path + "/"):
-                raise BundleVerificationError("manifest file is outside its declared skill path")
+                raise BundleVerificationError(
+                    "manifest file is outside its declared skill path"
+                )
             declared[item.path] = item.sha256
     actual_skill_paths = set(files) - ALLOWED_TOP_LEVEL
     if set(declared) != actual_skill_paths:

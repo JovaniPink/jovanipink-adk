@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import io
-import json
 import unittest
 import warnings
 import zipfile
 from dataclasses import replace
+from typing import cast
 
 from jovanipink_adk import (
     BundleVerificationError,
@@ -14,7 +14,7 @@ from jovanipink_adk import (
     verify_skill_bundle,
 )
 
-from support import rewrite_archive
+from tests.support import rewrite_archive
 
 
 class BundleVerificationTests(unittest.TestCase):
@@ -22,34 +22,59 @@ class BundleVerificationTests(unittest.TestCase):
         self.bundle = build_synthetic_bundle()
         self.policy = RuntimePolicy.for_testing({"fictional-support-policy"})
 
-    def assert_rejected(self, payload: bytes, message: str, policy: RuntimePolicy | None = None) -> None:
+    def assert_rejected(
+        self, payload: bytes, message: str, policy: RuntimePolicy | None = None
+    ) -> None:
         with self.assertRaisesRegex(BundleVerificationError, message):
             verify_skill_bundle(payload, policy or self.policy)
 
     def test_valid_synthetic_bundle_verifies_read_only(self) -> None:
         verified = verify_skill_bundle(self.bundle, self.policy)
         self.assertEqual(("fictional-support-policy",), verified.skill_names)
-        self.assertIn("skills/fictional-support-policy/references/policy-facts.md", verified.files)
+        self.assertIn(
+            "skills/fictional-support-policy/references/policy-facts.md", verified.files
+        )
         with self.assertRaises(TypeError):
-            verified.files["new"] = b"no"
+            cast(dict[str, bytes], verified.files)["new"] = b"no"
 
     def test_wrong_hash_and_undeclared_files_fail_closed(self) -> None:
         def wrong_hash(value: dict[str, object]) -> None:
-            value["skills"][0]["files"][0]["sha256"] = "0" * 64
+            skills = value.get("skills")
+            if (
+                not isinstance(skills, list)
+                or not skills
+                or not isinstance(skills[0], dict)
+            ):
+                raise TypeError("synthetic manifest skills are malformed")
+            files = skills[0].get("files")
+            if (
+                not isinstance(files, list)
+                or not files
+                or not isinstance(files[0], dict)
+            ):
+                raise TypeError("synthetic manifest files are malformed")
+            files[0]["sha256"] = "0" * 64
 
         self.assert_rejected(
             rewrite_archive(self.bundle, transform_json={"manifest.json": wrong_hash}),
             "hash mismatch",
         )
         self.assert_rejected(
-            rewrite_archive(self.bundle, append=[("skills/fictional-support-policy/references/extra.md", b"extra")]),
+            rewrite_archive(
+                self.bundle,
+                append=[
+                    ("skills/fictional-support-policy/references/extra.md", b"extra")
+                ],
+            ),
             "undeclared",
         )
 
     def test_release_state_and_version_policy_fail_closed(self) -> None:
         revoked = build_synthetic_bundle(lifecycle_state="revoked")
         self.assert_rejected(revoked, "revoked")
-        stale = build_synthetic_bundle(valid_until="2020-01-01T00:00:00Z", lifecycle_state="released")
+        stale = build_synthetic_bundle(
+            valid_until="2020-01-01T00:00:00Z", lifecycle_state="released"
+        )
         self.assert_rejected(stale, "expired")
         incompatible = build_synthetic_bundle(adk_version="0.0.1")
         self.assert_rejected(incompatible, "ADK version")
@@ -61,24 +86,32 @@ class BundleVerificationTests(unittest.TestCase):
             ("../escape.md", "path traversal"),
             ("/absolute.md", "absolute path"),
             (".hidden", "hidden"),
-            ("skills/fictional-support-policy/scripts/run.py", "forbidden archive path"),
-            ("skills/fictional-support-policy/requirements.txt", "forbidden archive path"),
+            (
+                "skills/fictional-support-policy/scripts/run.py",
+                "forbidden archive path",
+            ),
+            (
+                "skills/fictional-support-policy/requirements.txt",
+                "forbidden archive path",
+            ),
             ("skills/FICTIONAL-support-policy/SKILL.md", "case-colliding"),
         )
         for name, message in attacks:
             with self.subTest(name=name):
-                self.assert_rejected(rewrite_archive(self.bundle, append=[(name, b"bad")]), message)
+                self.assert_rejected(
+                    rewrite_archive(self.bundle, append=[(name, b"bad")]), message
+                )
 
         symlink = zipfile.ZipInfo("skills/fictional-support-policy/references/link.md")
         symlink.create_system = 3
         symlink.external_attr = 0o120777 << 16
-        self.assert_rejected(rewrite_archive(self.bundle, append=[(symlink, b"target")]), "symlink")
+        self.assert_rejected(
+            rewrite_archive(self.bundle, append=[(symlink, b"target")]), "symlink"
+        )
 
         with zipfile.ZipFile(io.BytesIO(self.bundle)) as source:
             duplicate_content = source.read("release.json")
-        self.assert_rejected(
-            self._duplicate_release(duplicate_content), "duplicate"
-        )
+        self.assert_rejected(self._duplicate_release(duplicate_content), "duplicate")
 
     def _duplicate_release(self, content: bytes) -> bytes:
         with warnings.catch_warnings():
@@ -96,7 +129,9 @@ class BundleVerificationTests(unittest.TestCase):
         self.assert_rejected(self.bundle, "archive size", tiny_archive_policy)
         compressed = rewrite_archive(
             self.bundle,
-            append=[("skills/fictional-support-policy/references/bomb.md", b"0" * 100_000)],
+            append=[
+                ("skills/fictional-support-policy/references/bomb.md", b"0" * 100_000)
+            ],
         )
         strict_ratio = replace(self.policy, maximum_compression_ratio=5)
         self.assert_rejected(compressed, "compression ratio", strict_ratio)

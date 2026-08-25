@@ -23,9 +23,17 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install pinned uv
-        run: python -m pip install --disable-pip-version-check uv==0.12.3
+        run: >-
+          python -m pip install --disable-pip-version-check
+          --require-hashes --only-binary=:all:
+          -r requirements-bootstrap-linux.txt
       - name: Sync locked environment
         run: uv sync --frozen
+      - name: Check types and lint
+        run: |
+          uv run --frozen mypy src tests scripts
+          uv run --frozen ruff check src tests scripts
+          uv run --frozen ruff format --check src tests scripts
       - name: Validate
         run: uv run --frozen python scripts/validate.py
       - name: Build package artifacts from the locked environment
@@ -47,7 +55,7 @@ jobs:
           uv run --frozen python scripts/write_validation_report.py
           validation-artifacts/validation-report.json
       - name: Upload validation evidence
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: validation-evidence
           path: |
