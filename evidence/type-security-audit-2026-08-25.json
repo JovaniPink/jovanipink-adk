@@ -1,0 +1,43 @@
+{
+  "schema_version": "1",
+  "status": "pass",
+  "security_disposition": "APPROVE WITH CONDITIONS",
+  "source_revision": "e46c9b520b6ad4e9168bb8936025c1f9e418ec43",
+  "reviewed_on": "2026-08-25",
+  "python_source_files_typed": 19,
+  "unit_tests_passed": 20,
+  "locked_packages_reviewed": 89,
+  "installed_dependency_licenses_reviewed": 86,
+  "publishable_files_scanned": 45,
+  "vulnerability_audit": {
+    "tool": "pip-audit 2.10.1",
+    "result": "No known vulnerabilities found",
+    "boundary": "Time-sensitive advisory result for the exact installed locked environment"
+  },
+  "artifacts": [
+    {
+      "path": "dist/jovanipink_adk-0.1.0-py3-none-any.whl",
+      "sha256": "51a11c52e70f0eade8d2952be16c480cd4fc6eb94afbc39da3a94975c2a95a0d",
+      "files_scanned": 11
+    },
+    {
+      "path": "dist/jovanipink_adk-0.1.0.tar.gz",
+      "sha256": "e72fb532a755396155e84985d8f036db05f5f6549ce55d30002f3f768e4922ff",
+      "files_scanned": 46
+    },
+    {
+      "path": "requirements-bootstrap-linux.txt",
+      "sha256": "535058e6122b3cb4c0d0e884c87900cb723632c997da8fc6f2c095edf85d0fbf"
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "42efec915432889c4c5327345d80c90114558b364b8d06779705ec36e504de01"
+    }
+  ],
+  "conditions": [
+    "No tag, package publication, deployment, cloud credential, or production data is authorized by this audit.",
+    "The synthetic reference agent remains unsuitable for production.",
+    "Runtime Agent Skills and ADK tool confirmation remain experimental and version-specific.",
+    "A future production release still requires durable approval, attestation, revocation, identity, replay, and product-owner evidence."
+  ]
+}
