@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JovaniPink/jovanipink-adk/schemas/release-receipt.schema.json",
+  "title": "JovaniPink ADK release receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_id",
+    "bundle_version",
+    "artifact_sha256",
+    "lifecycle_state",
+    "runtime_adapter_version",
+    "adk_version",
+    "evaluation_receipts",
+    "provenance_attestation_reference",
+    "provenance_attestation_sha256",
+    "approval_identity",
+    "approved_at",
+    "issued_at",
+    "valid_until",
+    "revoked_at",
+    "revocation_reason"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "bundle_id": {"type": "string", "minLength": 1},
+    "bundle_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "lifecycle_state": {"enum": ["reviewed", "evaluated", "released", "revoked"]},
+    "runtime_adapter_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "adk_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "evaluation_receipts": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "provenance_attestation_reference": {"type": "string", "minLength": 1},
+    "provenance_attestation_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "approval_identity": {"type": ["string", "null"]},
+    "approved_at": {"type": ["string", "null"], "format": "date-time"},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "valid_until": {"type": "string", "format": "date-time"},
+    "revoked_at": {"type": ["string", "null"], "format": "date-time"},
+    "revocation_reason": {"type": ["string", "null"]}
+  }
+}

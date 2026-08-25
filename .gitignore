@@ -1,0 +1,12 @@
+.venv/
+.security-denylist
+validation-artifacts/
+__pycache__/
+*.py[cod]
+.coverage
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+.DS_Store
+security-report.json
