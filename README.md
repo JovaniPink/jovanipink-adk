@@ -17,6 +17,8 @@ Scripts, assets, hooks, agents, plugins, binaries, dependency manifests, hidden 
 
 Read [the bundle contract](docs/bundle-contract.md), [security model](docs/security.md), [threat model](docs/threat-model.md), and [synthetic example](docs/synthetic-reference-agent.md) before using the library.
 
+Point-in-time local results are recorded separately under `evidence/`. They do not replace hosted CI or release authorization.
+
 ## Local development
 
 ```sh

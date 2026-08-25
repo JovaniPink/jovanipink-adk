@@ -21,7 +21,7 @@ def run(*arguments: str) -> None:
 def validate_json_files() -> None:
     paths = sorted((ROOT / "schemas").glob("*.json")) + sorted(
         (ROOT / "provenance").glob("*.json")
-    )
+    ) + sorted((ROOT / "evidence").glob("*.json"))
     if not paths:
         raise SystemExit("schema and provenance records are required")
     for path in paths:

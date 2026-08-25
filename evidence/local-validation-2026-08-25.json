@@ -1,0 +1,34 @@
+{
+  "schema_version": "1",
+  "source_revision": "32cbe79c6f915267c36ddabb7e5b252a08328386",
+  "recorded_at": "2026-08-25T16:24:00Z",
+  "environment": {
+    "python": "3.14.7",
+    "google_adk": "2.7.1",
+    "adapter": "0.1.0"
+  },
+  "results": {
+    "unit_and_integration_tests": {"status": "pass", "count": 18},
+    "dependency_lock_review": {"status": "pass", "packages": 84},
+    "installed_license_scan": {"status": "pass", "packages": 81},
+    "public_boundary_scan": {"status": "pass", "files": 42},
+    "vulnerability_audit": {
+      "status": "pass",
+      "tool": "pip-audit 2.10.1",
+      "observed_result": "No known vulnerabilities found"
+    },
+    "wheel_artifact_scan": {"status": "pass", "files": 11},
+    "source_artifact_scan": {"status": "pass", "files": 43},
+    "security_review": {"status": "approve-with-conditions"}
+  },
+  "artifacts": {
+    "jovanipink_adk-0.1.0-py3-none-any.whl": "32a632b693ded3735a485f4255c5afd2ac1a4109f17db07f4d438e505fdb4c59",
+    "jovanipink_adk-0.1.0.tar.gz": "3f435552c348db52642fa6454500198b547a2fa83a4ee5580e6138c4bc9ea6ff"
+  },
+  "limitations": [
+    "This is local synthetic evidence, not hosted CI evidence.",
+    "Python 3.11 behavior remains for hosted CI observation.",
+    "No model, cloud service, production data, or write-capable tool was used.",
+    "The project is not released, tagged, published, or deployed."
+  ]
+}
