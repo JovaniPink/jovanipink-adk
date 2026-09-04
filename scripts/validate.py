@@ -50,9 +50,13 @@ def validate_scoped_guidance() -> None:
         if not agents.is_file():
             raise SystemExit(f"missing scoped guidance: {agents.relative_to(ROOT)}")
         if not claude.is_file():
-            raise SystemExit(f"missing scoped Claude import: {claude.relative_to(ROOT)}")
+            raise SystemExit(
+                f"missing scoped Claude import: {claude.relative_to(ROOT)}"
+            )
         if claude.read_text(encoding="utf-8") != EXACT_CLAUDE_IMPORT:
-            raise SystemExit(f"invalid scoped Claude import: {claude.relative_to(ROOT)}")
+            raise SystemExit(
+                f"invalid scoped Claude import: {claude.relative_to(ROOT)}"
+            )
 
 
 def main() -> int:

@@ -66,7 +66,9 @@ class CiContractTests(unittest.TestCase):
         self.assertNotIn("tests", str(included))
 
     def test_all_scoped_instruction_pairs_are_present_and_exact(self) -> None:
-        self.assertEqual(("schemas", "src", "tests", "scripts"), SCOPED_GUIDANCE_DIRECTORIES)
+        self.assertEqual(
+            ("schemas", "src", "tests", "scripts"), SCOPED_GUIDANCE_DIRECTORIES
+        )
         for directory in SCOPED_GUIDANCE_DIRECTORIES:
             self.assertTrue((ROOT / directory / "AGENTS.md").is_file(), directory)
             self.assertEqual(
