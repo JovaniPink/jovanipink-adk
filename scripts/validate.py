@@ -12,6 +12,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_LINK = re.compile(r"\[[^]]+\]\((?!https?://)([^)#]+)(?:#[^)]+)?\)")
+SCOPED_GUIDANCE_DIRECTORIES = ("schemas", "src", "tests", "scripts")
+EXACT_CLAUDE_IMPORT = "@AGENTS.md\n"
 
 
 def run(*arguments: str) -> None:
@@ -40,9 +42,27 @@ def validate_local_links() -> None:
                 )
 
 
+def validate_scoped_guidance() -> None:
+    for directory in SCOPED_GUIDANCE_DIRECTORIES:
+        scoped_root = ROOT / directory
+        agents = scoped_root / "AGENTS.md"
+        claude = scoped_root / "CLAUDE.md"
+        if not agents.is_file():
+            raise SystemExit(f"missing scoped guidance: {agents.relative_to(ROOT)}")
+        if not claude.is_file():
+            raise SystemExit(
+                f"missing scoped Claude import: {claude.relative_to(ROOT)}"
+            )
+        if claude.read_text(encoding="utf-8") != EXACT_CLAUDE_IMPORT:
+            raise SystemExit(
+                f"invalid scoped Claude import: {claude.relative_to(ROOT)}"
+            )
+
+
 def main() -> int:
     validate_json_files()
     validate_local_links()
+    validate_scoped_guidance()
     run("scripts/dependency_review.py")
     run("scripts/license_scan.py")
     run("scripts/security_scan.py")

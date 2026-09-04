@@ -5,6 +5,8 @@ import tomllib
 import unittest
 from pathlib import Path
 
+from scripts.validate import EXACT_CLAUDE_IMPORT, SCOPED_GUIDANCE_DIRECTORIES
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -62,6 +64,18 @@ class CiContractTests(unittest.TestCase):
         self.assertNotIn("evidence", str(included))
         self.assertNotIn("provenance", str(included))
         self.assertNotIn("tests", str(included))
+
+    def test_all_scoped_instruction_pairs_are_present_and_exact(self) -> None:
+        self.assertEqual(
+            ("schemas", "src", "tests", "scripts"), SCOPED_GUIDANCE_DIRECTORIES
+        )
+        for directory in SCOPED_GUIDANCE_DIRECTORIES:
+            self.assertTrue((ROOT / directory / "AGENTS.md").is_file(), directory)
+            self.assertEqual(
+                EXACT_CLAUDE_IMPORT,
+                (ROOT / directory / "CLAUDE.md").read_text(encoding="utf-8"),
+                directory,
+            )
 
 
 if __name__ == "__main__":
